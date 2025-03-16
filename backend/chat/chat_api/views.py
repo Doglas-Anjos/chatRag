@@ -13,6 +13,7 @@ import os
 import logging
 from .models import Document, Chat, Message
 from .serializers import DocumentSerializer, ChatSerializer, MessageSerializer
+from .rag_exp import rag_with_internet_search
 
 logger = logging.getLogger(__name__)
 
@@ -91,54 +92,34 @@ class ChatViewSet(viewsets.ModelViewSet):
             )
 
             try:
-                # Initialize OpenAI components with minimal configuration
-                llm = ChatOpenAI(
-                    model_name="gpt-3.5-turbo",
-                    temperature=0.7,
-                    api_key=settings.OPENAI_API_KEY
-                )
-
                 # Get relevant documents using RAG if they exist
                 documents = Document.objects.all()
                 if documents.exists():
                     try:
-                        # Initialize RAG components
-                        embeddings = OpenAIEmbeddings(
-                            openai_api_key=settings.OPENAI_API_KEY,
-                            model="text-embedding-ada-002"
-                        )
+                        # Get document contents
+
                         
-                        vectorstore = FAISS.from_texts(
-                            [doc.content for doc in documents],
-                            embeddings
-                        )
-
-                        memory = ConversationBufferMemory(
-                            memory_key="chat_history",
-                            return_messages=True
-                        )
-
-                        chain = ConversationalRetrievalChain.from_llm(
-                            llm=llm,
-                            retriever=vectorstore.as_retriever(),
-                            memory=memory,
-                            return_source_documents=True
-                        )
-
-                        # Get response with context
-                        result = chain({"question": user_message})
+                        # Use rag_with_internet_search function
+                        result = rag_with_internet_search(user_message)
+                        
                         assistant_message = result["answer"]
-                        sources = [doc.page_content for doc in result["source_documents"]]
+                        sources = result.get("sources", [])
+                        
                     except Exception as e:
                         logger.error(f"Error with RAG processing: {str(e)}")
                         # Fallback to regular chat if RAG fails
+                        llm = ChatOpenAI(
+                            model_name="gpt-3.5-turbo",
+                            temperature=0.7,
+                            api_key=settings.OPENAI_API_KEY
+                        )
                         response = llm([HumanMessage(content=user_message)])
                         assistant_message = response.content
                         sources = []
                 else:
                     # If no documents, just use the base model
-                    response = llm([HumanMessage(content=user_message)])
-                    assistant_message = response.content
+                    result = rag_with_internet_search(user_message)
+                    assistant_message = result
                     sources = []
 
                 # Create assistant message

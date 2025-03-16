@@ -10,7 +10,7 @@ from langchain_community.tools.tavily_search import TavilySearchResults
 from langchain_community.chat_models import ChatOpenAI
 from langchain.memory import ConversationBufferMemory
 import os
-from find_pdf_files import generate_list_texts_pdfs_files, convert_text_to_vec_db
+from .find_pdf_files import generate_list_texts_pdfs_files, convert_text_to_vec_db
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -35,11 +35,9 @@ def rag_with_internet_search(query_user):
 
     search = TavilySearchResults(max_results=2)
 
-
     def query_reformulation(query):
         response = llm.predict("Rewrite this query to be more specific: " + query)
         return response
-
 
     def self_evaluate(input_text):
         parts = input_text.split("|||")
@@ -127,7 +125,7 @@ def rag_with_internet_search(query_user):
         Confidence assessment: {result['evaluation']}
         """
 
-    print(transparent_response("I want a formula!"))
+    return transparent_response(query_user)
 
 
 if __name__ == '__main__':
