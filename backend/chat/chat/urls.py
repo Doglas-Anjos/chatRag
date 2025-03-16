@@ -19,10 +19,12 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from chat_api.views import DocumentViewSet, ChatViewSet
 
+# Create a router and register our viewsets with it.
 router = DefaultRouter()
-router.register(r'documents', DocumentViewSet, basename='document')
-router.register(r'chats', ChatViewSet, basename='chat')
+router.register(r'documents', DocumentViewSet)
+router.register(r'chats', ChatViewSet)
 
+# The API URLs are now determined automatically by the router.
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include(router.urls)),
