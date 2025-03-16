@@ -1,6 +1,6 @@
 backend/venv/
 .idea/
 /node_modules/
-backend/.env
+.env
 __pycache__/
 db.sqlite3
