@@ -4,3 +4,4 @@ backend/venv/
 .env
 __pycache__/
 db.sqlite3
+migrations/

@@ -12,7 +12,7 @@ class Document(models.Model):
         return self.title
 
     class Meta:
-        app_label = 'chat'
+        app_label = 'chat_api'
         db_table = 'chat_document'
 
 class Chat(models.Model):
@@ -24,7 +24,7 @@ class Chat(models.Model):
         return self.title
 
     class Meta:
-        app_label = 'chat'
+        app_label = 'chat_api'
         db_table = 'chat_chat'
 
 class Message(models.Model):
@@ -38,5 +38,5 @@ class Message(models.Model):
 
     class Meta:
         ordering = ['created_at']
-        app_label = 'chat'
+        app_label = 'chat_api'
         db_table = 'chat_message'
